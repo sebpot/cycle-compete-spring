@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/knook")
 public class DummyController {
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<String> getKnook() {
         return ResponseEntity.ok("knook");
     }
