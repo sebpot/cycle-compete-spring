@@ -7,6 +7,7 @@ import com.sebpot.cyclecompete.model.User;
 import com.sebpot.cyclecompete.model.UserRole;
 import com.sebpot.cyclecompete.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +22,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) throws Exception {
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -29,6 +30,9 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(UserRole.USER)
                 .build();
+        if(userRepository.findByEmail(request.getEmail()).isPresent()){
+            throw new Exception("Email is already in use");
+        }
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
