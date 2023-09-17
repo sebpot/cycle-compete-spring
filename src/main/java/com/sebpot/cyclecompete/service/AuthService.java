@@ -24,9 +24,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse register(RegisterRequest request) throws Exception {
-        if(request.getPassword().length() < 5) {
-            throw new Exception("Password is too short");
-        }
         var user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
@@ -37,11 +34,27 @@ public class AuthService {
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new Exception("Email is already in use");
         }
+        validateUserCredentials(request);
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+
+    private void validateUserCredentials(RegisterRequest request) throws Exception{
+        if (!request.getEmail().matches("^(.+)@(.+)$")) {
+            throw new Exception("Incorrect email format");
+        }
+        if (!request.getFirstname().matches("[a-zA-Z]*")) {
+            throw new Exception("Incorrect firstname");
+        }
+        if (!request.getLastname().matches("[a-zA-Z]*")) {
+            throw new Exception("Incorrect lastname");
+        }
+        if(request.getPassword().length() < 5) {
+            throw new Exception("Password is too short");
+        }
     }
 
     public AuthResponse authenticate(AuthRequest request) throws Exception {
