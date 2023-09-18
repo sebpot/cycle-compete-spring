@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -62,28 +64,27 @@ public class AuthService {
     }
 
     private boolean validatePassword(String password) {
-        String letters = "qwertyuiopasdfghjklzxcvbnm";
-        String uCLetters = letters.toUpperCase();
-        String numbers = "1234567890";
-        String specials = "`~!@#$%^&*()-_ =+[{]}|\\;:,<.>/?\"";
-        boolean hasLower = false;
-        boolean hasUpper = false;
-        boolean hasNumber = false;
-        boolean hasSpecial = false;
+        final int MIN_LENGTH = 7;
+        final int MAX_LENGTH = Integer.MAX_VALUE;
 
-        for(int i = 0; i < password.length(); i++) {
-            char c = password.charAt(i);
-            if (letters.contains(String.valueOf(c))) {
-                hasLower = true;
-            } else if(uCLetters.contains(String.valueOf(c))) {
-                hasUpper = true;
-            } else if(numbers.contains(String.valueOf(c))) {
-                hasNumber = true;
-            } else if(specials.contains(String.valueOf(c))) {
-                hasSpecial = true;
-            }
+        if (password.length() < MIN_LENGTH || password.length() > MAX_LENGTH) {
+            return false;
         }
-        return hasLower && hasUpper && hasNumber && !hasSpecial && password.length() > 7 && password.length() < 17;
+
+        final Pattern lowerCase = Pattern.compile("[a-z]");
+        final Pattern upperCase = Pattern.compile("[A-Z]");
+        final Pattern numbers = Pattern.compile("[0-9]");
+        final Pattern specials = Pattern.compile("[ !\"#$%&'()*+,\\-./:;<=>?@\\[\\]^_`{|}~]");
+
+        boolean hasLower = lowerCase.matcher(password).find();
+        boolean hasUpper = upperCase.matcher(password).find();
+        boolean hasNumber = numbers.matcher(password).find();
+        boolean hasSpecial = specials.matcher(password).find();
+
+        // System.out.println("Validating password: " + password + "\nhasLower: " + hasLower +
+        //        ", hasUpper: " + hasUpper + ", hasNumber: " + hasNumber + ", hasSpecial: " + hasSpecial);
+
+        return hasLower && hasUpper && hasNumber && hasSpecial;
     }
 
     public AuthResponse authenticate(AuthRequest request) throws Exception {
