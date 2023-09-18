@@ -7,12 +7,16 @@ import com.sebpot.cyclecompete.model.User;
 import com.sebpot.cyclecompete.model.UserRole;
 import com.sebpot.cyclecompete.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @RequiredArgsConstructor
@@ -52,9 +56,34 @@ public class AuthService {
         if (!request.getLastname().matches("[a-zA-Z]*")) {
             throw new Exception("Incorrect lastname");
         }
-        if(request.getPassword().length() < 5) {
-            throw new Exception("Password is too short");
+        if(!validatePassword(request.getPassword())){
+            throw new Exception("Invalid password");
         }
+    }
+
+    private boolean validatePassword(String password) {
+        String letters = "qwertyuiopasdfghjklzxcvbnm";
+        String uCLetters = letters.toUpperCase();
+        String numbers = "1234567890";
+        String specials = "`~!@#$%^&*()-_ =+[{]}|\\;:,<.>/?\"";
+        boolean hasLower = false;
+        boolean hasUpper = false;
+        boolean hasNumber = false;
+        boolean hasSpecial = false;
+
+        for(int i = 0; i < password.length(); i++) {
+            char c = password.charAt(i);
+            if (letters.contains(String.valueOf(c))) {
+                hasLower = true;
+            } else if(uCLetters.contains(String.valueOf(c))) {
+                hasUpper = true;
+            } else if(numbers.contains(String.valueOf(c))) {
+                hasNumber = true;
+            } else if(specials.contains(String.valueOf(c))) {
+                hasSpecial = true;
+            }
+        }
+        return hasLower && hasUpper && hasNumber && !hasSpecial && password.length() > 7 && password.length() < 17;
     }
 
     public AuthResponse authenticate(AuthRequest request) throws Exception {
