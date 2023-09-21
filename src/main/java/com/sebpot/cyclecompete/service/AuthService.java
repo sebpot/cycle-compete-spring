@@ -43,22 +43,34 @@ public class AuthService {
                 .build();
     }
 
-    private void validateUserCredentials(RegisterRequest request) throws Exception{
-        if (!request.getEmail().matches("^(.+)@(.+)$")) {
+    public static void validateUserCredentials(RegisterRequest request) throws Exception{
+        if (!isEmailValid(request.getEmail())) {
             throw new Exception("Incorrect email format");
         }
-        if (!request.getFirstname().matches("[a-zA-Z]*")) {
+        if (!isFirstNameValid(request.getFirstname())) {
             throw new Exception("Incorrect firstname");
         }
-        if (!request.getLastname().matches("[a-zA-Z]*")) {
+        if (!isLastNameValid(request.getLastname())) {
             throw new Exception("Incorrect lastname");
         }
-        if(!validatePassword(request.getPassword())){
+        if(!isPasswordValid(request.getPassword())){
             throw new Exception("Invalid password");
         }
     }
 
-    private boolean validatePassword(String password) {
+    public static boolean isEmailValid(String email) {
+        return email.matches("^(.+)@(.+)$");
+    }
+
+    public static boolean isFirstNameValid(String firstName) {
+        return firstName.matches("[a-zA-Z]+");
+    }
+
+    public static boolean isLastNameValid(String lastName) {
+        return lastName.matches("[a-zA-Z]+");
+    }
+
+    public static boolean isPasswordValid(String password) {
         final int MIN_LENGTH = 7;
         final int MAX_LENGTH = Integer.MAX_VALUE;
 
