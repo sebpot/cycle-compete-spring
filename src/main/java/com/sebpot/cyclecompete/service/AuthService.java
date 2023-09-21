@@ -26,9 +26,10 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) throws Exception {
         var user = User.builder()
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
-                .email(request.getEmail())
+                .firstname(request.getFirstname().strip())
+                .lastname(request.getLastname().strip())
+                .email(request.getEmail().strip())
+                // Don't strip password, because passwords can contain space
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(UserRole.USER)
                 .build();
@@ -44,15 +45,16 @@ public class AuthService {
     }
 
     public static void validateUserCredentials(RegisterRequest request) throws Exception{
-        if (!isEmailValid(request.getEmail())) {
+        if (!isEmailValid(request.getEmail().strip())) {
             throw new Exception("Incorrect email format");
         }
-        if (!isFirstNameValid(request.getFirstname())) {
+        if (!isFirstNameValid(request.getFirstname().strip())) {
             throw new Exception("Incorrect firstname");
         }
-        if (!isLastNameValid(request.getLastname())) {
+        if (!isLastNameValid(request.getLastname().strip())) {
             throw new Exception("Incorrect lastname");
         }
+        // Don't strip password, because passwords can contain space
         if(!isPasswordValid(request.getPassword())){
             throw new Exception("Invalid password");
         }
