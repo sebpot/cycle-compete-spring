@@ -23,35 +23,21 @@ class CyclecompeteApplicationTests {
     }
 
     @Test
-    public void isFirstNameValidTest() {
-        assertFalse(AuthService.isFirstNameValid(""));
-        assertFalse(AuthService.isFirstNameValid("Knook123"));
-        assertFalse(AuthService.isFirstNameValid("23754345"));
-        assertFalse(AuthService.isFirstNameValid("Knook Horsie"));
-        assertFalse(AuthService.isFirstNameValid(" Knook"));
-        assertFalse(AuthService.isFirstNameValid("Knook "));
-        assertFalse(AuthService.isFirstNameValid(" Knook "));
+    public void isNameValidTest() {
+        assertFalse(AuthService.isNameValid(""));
+        assertFalse(AuthService.isNameValid("Knook123"));
+        assertFalse(AuthService.isNameValid("23754345"));
+        assertFalse(AuthService.isNameValid("Knook Horsie"));
+        assertFalse(AuthService.isNameValid(" Knook"));
+        assertFalse(AuthService.isNameValid("Knook "));
+        assertFalse(AuthService.isNameValid(" Knook "));
+        assertFalse(AuthService.isNameValid(" Błażej "));
+        assertFalse(AuthService.isNameValid("Adrian Miński"));
 
-        assertTrue(AuthService.isFirstNameValid("Knooki"));
-        assertTrue(AuthService.isFirstNameValid("kNook"));
-        //assertTrue(AuthService.isFirstNameValid("Błażej"));
-        //assertTrue(AuthService.isFirstNameValid("Łukasz"));
-    }
-
-    @Test
-    public void isLastNameValidTest() {
-        assertFalse(AuthService.isLastNameValid(""));
-        assertFalse(AuthService.isLastNameValid("Knook123"));
-        assertFalse(AuthService.isLastNameValid("23754345"));
-        assertFalse(AuthService.isLastNameValid("Knook Horsie"));
-        assertFalse(AuthService.isLastNameValid(" Knook"));
-        assertFalse(AuthService.isLastNameValid("Knook "));
-        assertFalse(AuthService.isLastNameValid(" Knook "));
-
-        assertTrue(AuthService.isLastNameValid("Knooki"));
-        assertTrue(AuthService.isLastNameValid("kNook"));
-        //assertTrue(AuthService.isLastNameValid("Miński"));
-        //assertTrue(AuthService.isLastNameValid("Ślepy"));
+        assertTrue(AuthService.isNameValid("Knooki"));
+        assertTrue(AuthService.isNameValid("kNook"));
+        assertTrue(AuthService.isNameValid("Błażej"));
+        assertTrue(AuthService.isNameValid("Łukasz"));
     }
 
     @Test
@@ -70,12 +56,19 @@ class CyclecompeteApplicationTests {
         assertFalse(AuthService.isPasswordValid("ADMIN123$"));
         assertFalse(AuthService.isPasswordValid("ADMIN123$?!@??!@#?!@#"));
         assertFalse(AuthService.isPasswordValid("xXx!big$$$admin$$$money!xXx"));
+        assertFalse(AuthService.isPasswordValid("łukasz123"));
+        assertFalse(AuthService.isPasswordValid("Łukasz123"));
+        assertFalse(AuthService.isPasswordValid("Łukasz123ęąść"));
+        assertFalse(AuthService.isPasswordValid("Łukasz###ęąść"));
+        assertFalse(AuthService.isPasswordValid("Łóś1$$"));
 
         assertTrue(AuthService.isPasswordValid("Admin12#"));
         assertTrue(AuthService.isPasswordValid("Administrator1337!!!!!"));
         assertTrue(AuthService.isPasswordValid("Knookie 127"));
         assertTrue(AuthService.isPasswordValid("Knookie69 BIG#CHONKER?!"));
-        //assertTrue(AuthService.isPasswordValid("AdrianMiński123#"));
+        assertTrue(AuthService.isPasswordValid("AdrianMiński123#"));
+        assertTrue(AuthService.isPasswordValid("Łukasz 123"));
+        assertTrue(AuthService.isPasswordValid("Żę12345@@@@@"));
     }
 
 }

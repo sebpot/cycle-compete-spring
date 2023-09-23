@@ -51,10 +51,10 @@ public class AuthService {
         if (!isEmailValid(request.getEmail().strip())) {
             throw new Exception("Incorrect email format");
         }
-        if (!isFirstNameValid(request.getFirstname().strip())) {
+        if (!isNameValid(request.getFirstname().strip())) {
             throw new Exception("Incorrect firstname");
         }
-        if (!isLastNameValid(request.getLastname().strip())) {
+        if (!isNameValid(request.getLastname().strip())) {
             throw new Exception("Incorrect lastname");
         }
         // Don't strip password, because passwords can contain space
@@ -67,12 +67,10 @@ public class AuthService {
         return email.matches("^(.+)@(.+)$");
     }
 
-    public static boolean isFirstNameValid(String firstName) {
-        return firstName.matches("[a-zA-Z]+");
-    }
-
-    public static boolean isLastNameValid(String lastName) {
-        return lastName.matches("[a-zA-Z]+");
+    public static boolean isNameValid(String firstName) {
+        // \p{L} - Uppercase or lowercase letter from any language
+        Pattern pattern = Pattern.compile("(\\p{L})+", Pattern.UNICODE_CASE);
+        return pattern.matcher(firstName).matches();
     }
 
     public static boolean isPasswordValid(String password) {
@@ -83,8 +81,8 @@ public class AuthService {
             return false;
         }
 
-        final Pattern lowerCase = Pattern.compile("[a-z]");
-        final Pattern upperCase = Pattern.compile("[A-Z]");
+        final Pattern lowerCase = Pattern.compile("\\p{Ll}", Pattern.UNICODE_CASE);
+        final Pattern upperCase = Pattern.compile("\\p{Lu}", Pattern.UNICODE_CASE);
         final Pattern numbers = Pattern.compile("[0-9]");
         final Pattern specials = Pattern.compile("[ !\"#$%&'()*+,\\-./:;<=>?@\\[\\]^_`{|}~]");
 
