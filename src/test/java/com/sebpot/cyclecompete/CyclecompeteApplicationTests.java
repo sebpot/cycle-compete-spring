@@ -34,6 +34,8 @@ class CyclecompeteApplicationTests {
 
         assertTrue(AuthService.isFirstNameValid("Knooki"));
         assertTrue(AuthService.isFirstNameValid("kNook"));
+        //assertTrue(AuthService.isFirstNameValid("Błażej"));
+        //assertTrue(AuthService.isFirstNameValid("Łukasz"));
     }
 
     @Test
@@ -48,6 +50,8 @@ class CyclecompeteApplicationTests {
 
         assertTrue(AuthService.isLastNameValid("Knooki"));
         assertTrue(AuthService.isLastNameValid("kNook"));
+        //assertTrue(AuthService.isLastNameValid("Miński"));
+        //assertTrue(AuthService.isLastNameValid("Ślepy"));
     }
 
     @Test
@@ -71,6 +75,7 @@ class CyclecompeteApplicationTests {
         assertTrue(AuthService.isPasswordValid("Administrator1337!!!!!"));
         assertTrue(AuthService.isPasswordValid("Knookie 127"));
         assertTrue(AuthService.isPasswordValid("Knookie69 BIG#CHONKER?!"));
+        //assertTrue(AuthService.isPasswordValid("AdrianMiński123#"));
     }
 
 }
