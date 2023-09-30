@@ -25,19 +25,19 @@ class CyclecompeteApplicationTests {
     @Test
     public void isNameValidTest() {
         assertFalse(AuthService.isNameValid(""));
-        assertFalse(AuthService.isNameValid("Knook123"));
-        assertFalse(AuthService.isNameValid("23754345"));
-        assertFalse(AuthService.isNameValid("Knook Horsie"));
-        assertFalse(AuthService.isNameValid(" Knook"));
-        assertFalse(AuthService.isNameValid("Knook "));
-        assertFalse(AuthService.isNameValid(" Knook "));
-        assertFalse(AuthService.isNameValid(" Błażej "));
-        assertFalse(AuthService.isNameValid("Adrian Miński"));
+        assertFalse(AuthService.isNameValid("   "));
 
+        assertTrue(AuthService.isNameValid("Knook"));
+        assertTrue(AuthService.isNameValid("Knook Horsie"));
+        assertTrue(AuthService.isNameValid("Błażej"));
+        assertTrue(AuthService.isNameValid("Adrian Miński"));
         assertTrue(AuthService.isNameValid("Knooki"));
         assertTrue(AuthService.isNameValid("kNook"));
         assertTrue(AuthService.isNameValid("Błażej"));
         assertTrue(AuthService.isNameValid("Łukasz"));
+        assertTrue(AuthService.isNameValid("Kowalska-Nowak"));
+        assertTrue(AuthService.isNameValid("Guðmundsdóttir"));
+        assertTrue(AuthService.isNameValid("José Carreño Quiñones"));
     }
 
     @Test

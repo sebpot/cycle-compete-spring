@@ -67,10 +67,11 @@ public class AuthService {
         return email.matches("^(.+)@(.+)$");
     }
 
-    public static boolean isNameValid(String firstName) {
+    public static boolean isNameValid(String name) {
         // \p{L} - Uppercase or lowercase letter from any language
-        Pattern pattern = Pattern.compile("(\\p{L})+", Pattern.UNICODE_CASE);
-        return pattern.matcher(firstName).matches();
+        // Pattern pattern = Pattern.compile("(\\p{L})+", Pattern.UNICODE_CASE);
+        // return pattern.matcher(name).matches();
+        return !name.isBlank();
     }
 
     public static boolean isPasswordValid(String password) {
