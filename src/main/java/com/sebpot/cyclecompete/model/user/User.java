@@ -1,4 +1,4 @@
-package com.sebpot.cyclecompete.model;
+package com.sebpot.cyclecompete.model.user;
 
 import jakarta.persistence.*;
 import lombok.*;

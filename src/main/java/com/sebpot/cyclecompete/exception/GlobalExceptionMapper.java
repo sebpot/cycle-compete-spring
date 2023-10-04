@@ -1,6 +1,7 @@
 package com.sebpot.cyclecompete.exception;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,5 +24,11 @@ public class GlobalExceptionMapper extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleBusinessException(Exception ex, WebRequest request) {
 
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = {ChangeSetPersister.NotFoundException.class})
+    protected ResponseEntity<Object> handleNotFoundException(Exception ex, WebRequest request) {
+
+        return handleExceptionInternal(ex, "An account with given email address does not exist", new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 }

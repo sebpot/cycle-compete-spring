@@ -1,70 +1,54 @@
 package com.sebpot.cyclecompete.service;
 
-import com.sebpot.cyclecompete.model.auth.AuthRequest;
-import com.sebpot.cyclecompete.model.auth.AuthResponse;
 import com.sebpot.cyclecompete.model.auth.RegisterRequest;
+import com.sebpot.cyclecompete.model.user.EditUserPasswordRequest;
+import com.sebpot.cyclecompete.model.user.EditUserRequest;
+import com.sebpot.cyclecompete.model.user.EditUserResponse;
 import com.sebpot.cyclecompete.model.user.User;
-import com.sebpot.cyclecompete.model.user.UserRole;
 import com.sebpot.cyclecompete.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+@Transactional
+public class UserService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthResponse register(RegisterRequest request) throws Exception {
-        var user = User.builder()
-                .firstname(request.getFirstname().strip())
-                .lastname(request.getLastname().strip())
-                .email(request.getEmail().strip())
-                // Don't strip password, because passwords can contain space
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(UserRole.USER)
-                .build();
-        if(userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw new Exception("Email is already in use");
-        }
+    public EditUserResponse changeUserDetails(EditUserRequest request) throws Exception {
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
         validateUserCredentials(request);
+        user.setFirstname(request.getFirstname());
+        user.setLastname(request.getLastname());
         userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder()
+        return EditUserResponse.builder()
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
-                .email(user.getEmail())
-                .token(jwtToken)
                 .build();
     }
 
-    public static void validateUserCredentials(RegisterRequest request) throws Exception{
-        if (!isEmailValid(request.getEmail().strip())) {
-            throw new Exception("Incorrect email format");
-        }
+    public static void validateUserCredentials(EditUserRequest request) throws Exception {
         if (!isNameValid(request.getFirstname().strip())) {
             throw new Exception("Incorrect firstname");
         }
         if (!isNameValid(request.getLastname().strip())) {
             throw new Exception("Incorrect lastname");
         }
-        // Don't strip password, because passwords can contain space
-        if(!isPasswordValid(request.getPassword())){
-            throw new Exception("Invalid password");
-        }
-    }
-
-    public static boolean isEmailValid(String email) {
-        return email.matches("^(.+)@(.+)$");
     }
 
     public static boolean isNameValid(String name) {
@@ -72,6 +56,26 @@ public class AuthService {
         // Pattern pattern = Pattern.compile("(\\p{L})+", Pattern.UNICODE_CASE);
         // return pattern.matcher(name).matches();
         return !name.isBlank();
+    }
+
+    public Void changeUserPassword(EditUserPasswordRequest request) throws Exception {
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+        try{
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(), request.getOldPassword()
+                    )
+            );
+        } catch(AuthenticationException e){
+            throw new Exception("Given current password is incorrect");
+        }
+        if(!isPasswordValid(request.getNewPassword())){
+            throw new Exception("Invalid new password");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        return null;
     }
 
     public static boolean isPasswordValid(String password) {
@@ -98,24 +102,11 @@ public class AuthService {
         return hasLower && hasUpper && hasNumber && hasSpecial;
     }
 
-    public AuthResponse authenticate(AuthRequest request) throws Exception {
-        try{
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.getEmail(), request.getPassword()
-                    )
-            );
-        } catch(AuthenticationException e){
-            throw new Exception("Given email or password are incorrect");
+    public Void deleteUser(String email) throws Exception {
+        if(userRepository.findByEmail(email).isEmpty()){
+            throw new ChangeSetPersister.NotFoundException();
         }
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new Exception("An account with given email address does not exist"));
-        var jwtToken = jwtService.generateToken(user);
-        return AuthResponse.builder()
-                .firstname(user.getFirstname())
-                .lastname(user.getLastname())
-                .email(user.getEmail())
-                .token(jwtToken)
-                .build();
+        userRepository.deleteByEmail(email);
+        return null;
     }
 }
