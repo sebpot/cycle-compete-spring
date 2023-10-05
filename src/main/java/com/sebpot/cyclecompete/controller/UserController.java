@@ -14,27 +14,33 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @PutMapping("")
     public ResponseEntity<EditUserResponse> editUserDetails(
-            @RequestBody EditUserRequest request
+            @RequestBody EditUserRequest request,
+            @RequestHeader("Authorization") String authHeader
     ) throws Exception {
-        return ResponseEntity.ok(userService.changeUserDetails(request));
+        String token = authHeader.substring(7);
+        return ResponseEntity.ok(userService.changeUserDetails(request, token));
     }
 
     @PutMapping("/password")
     public ResponseEntity<?> editUserPassword(
-            @RequestBody EditUserPasswordRequest request
+            @RequestBody EditUserPasswordRequest request,
+            @RequestHeader("Authorization") String authHeader
     ) throws Exception {
-        return ResponseEntity.ok(userService.changeUserPassword(request));
+        String token = authHeader.substring(7);
+        userService.changeUserPassword(request, token);
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{email}")
+    @DeleteMapping("")
     public ResponseEntity<?> deleteAccount(
-            @PathVariable String email
+            @RequestHeader("Authorization") String authHeader
     ) throws Exception {
-        return ResponseEntity.ok(userService.deleteUser(email));
+        String token = authHeader.substring(7);
+        userService.deleteUser(token);
+        return ResponseEntity.ok().build();
     }
 }

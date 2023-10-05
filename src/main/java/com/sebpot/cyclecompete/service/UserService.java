@@ -22,13 +22,14 @@ import static com.sebpot.cyclecompete.service.AuthService.isPasswordValid;
 @Transactional
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    public EditUserResponse changeUserDetails(EditUserRequest request) throws Exception {
-        var user = userRepository.findByEmail(request.getEmail())
+    public EditUserResponse changeUserDetails(EditUserRequest request, String token) throws Exception {
+        String email = jwtService.extractUsername(token);
+        var user = userRepository.findByEmail(email)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
         validateUserCredentials(request);
         user.setFirstname(request.getFirstname().strip());
@@ -49,13 +50,14 @@ public class UserService {
         }
     }
 
-    public Void changeUserPassword(EditUserPasswordRequest request) throws Exception {
-        var user = userRepository.findByEmail(request.getEmail())
+    public void changeUserPassword(EditUserPasswordRequest request, String token) throws Exception {
+        String email = jwtService.extractUsername(token);
+        var user = userRepository.findByEmail(email)
                 .orElseThrow(ChangeSetPersister.NotFoundException::new);
         try{
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getEmail(), request.getOldPassword()
+                            email, request.getOldPassword()
                     )
             );
         } catch(AuthenticationException e){
@@ -66,14 +68,13 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
-        return null;
     }
 
-    public Void deleteUser(String email) throws Exception {
+    public void deleteUser(String token) throws Exception {
+        String email = jwtService.extractUsername(token);
         if(userRepository.findByEmail(email).isEmpty()){
             throw new ChangeSetPersister.NotFoundException();
         }
         userRepository.deleteByEmail(email);
-        return null;
     }
 }

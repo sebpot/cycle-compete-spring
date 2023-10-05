@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EditUserPasswordRequest {
-    private String email;
     private String oldPassword;
     private String newPassword;
 }
