@@ -4,6 +4,7 @@ import com.sebpot.cyclecompete.model.user.EditUserPasswordRequest;
 import com.sebpot.cyclecompete.model.user.EditUserRequest;
 import com.sebpot.cyclecompete.model.user.EditUserResponse;
 import com.sebpot.cyclecompete.repository.UserRepository;
+import com.sebpot.cyclecompete.util.CredentialValidationUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import static com.sebpot.cyclecompete.service.AuthService.isNameValid;
-import static com.sebpot.cyclecompete.service.AuthService.isPasswordValid;
 
 @Service
 @RequiredArgsConstructor
@@ -41,11 +39,11 @@ public class UserService {
                 .build();
     }
 
-    public static void validateUserCredentials(EditUserRequest request) throws Exception {
-        if (!isNameValid(request.getFirstname().strip())) {
+    public void validateUserCredentials(EditUserRequest request) throws Exception {
+        if (!CredentialValidationUtils.isNameValid(request.getFirstname().strip())) {
             throw new Exception("Incorrect firstname");
         }
-        if (!isNameValid(request.getLastname().strip())) {
+        if (!CredentialValidationUtils.isNameValid(request.getLastname().strip())) {
             throw new Exception("Incorrect lastname");
         }
     }
@@ -63,7 +61,7 @@ public class UserService {
         } catch(AuthenticationException e){
             throw new Exception("Given current password is incorrect");
         }
-        if(!isPasswordValid(request.getNewPassword())){
+        if(!CredentialValidationUtils.isPasswordValid(request.getNewPassword())){
             throw new Exception("Invalid new password");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
