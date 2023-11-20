@@ -36,7 +36,7 @@ public class CredentialValidationUtilsTests {
             "Adrian Miński",
             "Kowalska-Nowak",
             "Guðmundsdóttir",
-            "José Carreño Quiñones"
+            "Bartolomeo José Carreño Quiñones"
     })
     public void isNameValid_whenNameIsValid_thenReturnTrue(String validName) {
         assertTrue(CredentialValidationUtils.isNameValid(validName));
