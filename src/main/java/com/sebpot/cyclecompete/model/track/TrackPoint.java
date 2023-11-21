@@ -2,10 +2,12 @@ package com.sebpot.cyclecompete.model.track;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -22,7 +24,7 @@ public class TrackPoint {
     private double latitude;
 
     @Column(nullable = false)
-    private int order;
+    private int sequencePosition;
 
     @ManyToOne
     @JoinColumn(name = "track_id", nullable = false)

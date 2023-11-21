@@ -4,12 +4,15 @@ package com.sebpot.cyclecompete.model.track;
 import com.sebpot.cyclecompete.model.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -32,10 +35,5 @@ public class Track {
     @Column(name = "start_latitude", nullable = false)
     private double startLatitude;
 
-    @OneToMany
-    private List<TrackRun> runs;
-
-    @OneToMany
-    private List<TrackPoint> trackPoints;
-
+    private LocalTime averageTime;
 }
