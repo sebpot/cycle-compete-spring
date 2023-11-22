@@ -28,7 +28,7 @@ public class UserService {
     public EditUserResponse changeUserDetails(EditUserRequest request, String token) throws Exception {
         String email = jwtService.extractUsername(token);
         var user = userRepository.findByEmail(email)
-                .orElseThrow(ChangeSetPersister.NotFoundException::new);
+                .orElseThrow(() -> new IllegalArgumentException("An account with given email does not exist."));
         validateUserCredentials(request);
         user.setFirstname(request.getFirstname().strip());
         user.setLastname(request.getLastname().strip());

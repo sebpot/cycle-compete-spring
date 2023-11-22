@@ -26,9 +26,9 @@ public class GlobalExceptionMapper extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
-    @ExceptionHandler(value = {ChangeSetPersister.NotFoundException.class})
+    @ExceptionHandler(value = {IllegalArgumentException .class})
     protected ResponseEntity<Object> handleNotFoundException(Exception ex, WebRequest request) {
 
-        return handleExceptionInternal(ex, "An account with given email address does not exist", new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 }

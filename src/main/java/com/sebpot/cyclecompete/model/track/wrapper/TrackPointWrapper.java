@@ -1,4 +1,4 @@
-package com.sebpot.cyclecompete.model.track;
+package com.sebpot.cyclecompete.model.track.wrapper;
 
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
