@@ -42,9 +42,11 @@ public class TrackController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTrack(
-            @PathVariable int id
-    ) {
-        trackService.deleteTrack(id);
+            @PathVariable int id,
+            @RequestHeader("Authorization") String authHeader
+    ) throws Exception {
+        String token = authHeader.substring(7);
+        trackService.deleteTrack(id, token);
         return ResponseEntity.ok().build();
     }
 }
