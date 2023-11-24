@@ -19,5 +19,5 @@ public class GetTracksWrapper {
     private String name;
     private double startLongitude;
     private double startLatitude;
-    private LocalTime averageTime;
+    private String averageTime;
 }

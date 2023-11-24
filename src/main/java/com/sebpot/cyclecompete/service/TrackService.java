@@ -68,6 +68,7 @@ public class TrackService {
 
         List<GetTracksWrapper> trackWrappers = new ArrayList<>();
         for(Track track : tracks){
+            String avgTimeFormatted = String.format("%s:%s:%s", track.getAverageTime().getHour(), track.getAverageTime().getMinute(), track.getAverageTime().getSecond());
             trackWrappers.add(GetTracksWrapper.builder()
                     .id(track.getId())
                     .userFirstname(track.getCreator().getFirstname())
@@ -75,7 +76,7 @@ public class TrackService {
                     .name(track.getName())
                     .startLatitude(track.getStartLatitude())
                     .startLongitude(track.getStartLongitude())
-                    .averageTime(track.getAverageTime())
+                    .averageTime(avgTimeFormatted)
                     .build());
         }
 
@@ -101,6 +102,7 @@ public class TrackService {
                     .build());
         }
 
+        String avgTimeFormatted = String.format("%s:%s:%s", track.getAverageTime().getHour(), track.getAverageTime().getMinute(), track.getAverageTime().getSecond());
         return GetTrackResponse.builder()
                 .id(track.getId())
                 .userFirstname(track.getCreator().getFirstname())
@@ -108,7 +110,7 @@ public class TrackService {
                 .name(track.getName())
                 .startLatitude(track.getStartLatitude())
                 .startLongitude(track.getStartLongitude())
-                .averageTime(track.getAverageTime())
+                .averageTime(avgTimeFormatted)
                 .trackPoints(trackPointWrappers)
                 .build();
     }
@@ -160,6 +162,21 @@ public class TrackService {
                 .duration(duration)
                 .build();
         trackRunRepository.save(trackRun);
+
+        var trackRuns = trackRunRepository.findAllByTrack(track);
+        int totalSeconds = 0;
+        for(TrackRun trackRunOfList : trackRuns){
+            totalSeconds += trackRunOfList.getDuration().getHour() * 60 * 60;
+            totalSeconds += trackRunOfList.getDuration().getMinute() * 60;
+            totalSeconds += trackRunOfList.getDuration().getSecond();
+        }
+        int avgSeconds = totalSeconds / trackRuns.size();
+        int avgMinutes = avgSeconds / 60;
+        avgSeconds = avgSeconds % 60;
+        int avgHours = avgMinutes / 60;
+        avgMinutes = avgMinutes % 60;
+        LocalTime avgDuration = LocalTime.of(avgHours, avgMinutes, avgSeconds);
+        track.setAverageTime(avgDuration);
     }
 
     public GetTrackRunsOfTrackResponse getAllTrackRunsOfTrack(int id) {
@@ -170,10 +187,11 @@ public class TrackService {
 
         List<TrackRunsOfTrackWrapper> trackRunWrappers = new ArrayList<>();
         for(TrackRunQueryWrapper trackRun : trackRuns){
+            String minDurationFormatted = String.format("%s:%s:%s", trackRun.getMinDuration().getHour(), trackRun.getMinDuration().getMinute(), trackRun.getMinDuration().getSecond());
             trackRunWrappers.add(TrackRunsOfTrackWrapper.builder()
                     .userFirstname(trackRun.getUser().getFirstname())
                     .userLastname(trackRun.getUser().getLastname())
-                    .duration(trackRun.getMinDuration())
+                    .duration(minDurationFormatted)
                     .build()
             );
         }
@@ -192,10 +210,11 @@ public class TrackService {
 
         List<TrackRunsOfUserWrapper> trackRunWrappers = new ArrayList<>();
         for(TrackRun trackRun : trackRuns){
+            String minDurationFormatted = String.format("%s:%s:%s", trackRun.getDuration().getHour(), trackRun.getDuration().getMinute(), trackRun.getDuration().getSecond());
             trackRunWrappers.add(TrackRunsOfUserWrapper.builder()
                     .trackName(trackRun.getTrack().getName())
                     .endDate(trackRun.getEndDate())
-                    .duration(trackRun.getDuration())
+                    .duration(minDurationFormatted)
                     .build()
             );
         }

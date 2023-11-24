@@ -16,5 +16,5 @@ import java.time.LocalTime;
 public class TrackRunsOfUserWrapper {
     private String trackName;
     private LocalDateTime endDate;
-    private LocalTime duration;
+    private String duration;
 }

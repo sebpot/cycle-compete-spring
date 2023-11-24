@@ -19,4 +19,7 @@ public interface TrackRunRepository extends JpaRepository<TrackRun, Integer> {
 
     @Query("SELECT tR FROM TrackRun tR WHERE user = :id_of_user ORDER BY endDate DESC")
     List<TrackRun> findAllByUser(@Param("id_of_user") User user);
+
+    @Query("SELECT tR FROM TrackRun tR WHERE track = :id_od_track")
+    List<TrackRun> findAllByTrack(@Param("id_od_track") Track track);
 }

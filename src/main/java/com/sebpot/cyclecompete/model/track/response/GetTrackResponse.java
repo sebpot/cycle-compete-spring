@@ -21,6 +21,6 @@ public class GetTrackResponse {
     private String description;
     private double startLongitude;
     private double startLatitude;
-    private LocalTime averageTime;
+    private String averageTime;
     private List<TrackPointWrapper> trackPoints;
 }
