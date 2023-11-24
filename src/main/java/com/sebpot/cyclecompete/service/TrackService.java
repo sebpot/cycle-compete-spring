@@ -3,7 +3,6 @@ package com.sebpot.cyclecompete.service;
 import com.sebpot.cyclecompete.model.track.*;
 import com.sebpot.cyclecompete.model.track.request.CreateTrackRequest;
 import com.sebpot.cyclecompete.model.track.request.CreateTrackRunRequest;
-import com.sebpot.cyclecompete.model.track.request.GetTracksRequest;
 import com.sebpot.cyclecompete.model.track.response.GetTrackResponse;
 import com.sebpot.cyclecompete.model.track.response.GetTrackRunsOfTrackResponse;
 import com.sebpot.cyclecompete.model.track.response.GetTrackRunsOfUserResponse;
@@ -59,8 +58,13 @@ public class TrackService {
         }
     }
 
-    public GetTracksResponse getAllTracksIncludedInCords(GetTracksRequest request) {
-        var tracks = trackRepository.findAllIncludedInCords(request.getTopLeftLongitude(), request.getTopLeftLatitude(), request.getBottomRightLongitude(), request.getBottomRightLatitude());
+    public GetTracksResponse getAllTracksIncludedInCords(
+            double topLeftLongitude,
+            double topLeftLatitude,
+            double bottomRightLongitude,
+            double bottomRightLatitude
+    ) {
+        var tracks = trackRepository.findAllIncludedInCords(topLeftLongitude, topLeftLatitude, bottomRightLongitude, bottomRightLatitude);
 
         List<GetTracksWrapper> trackWrappers = new ArrayList<>();
         for(Track track : tracks){
