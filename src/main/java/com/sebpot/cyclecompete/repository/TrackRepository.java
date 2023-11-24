@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface TrackRepository extends JpaRepository<Track, Integer> {
 
-    @Query("SELECT t FROM Track t WHERE (startLongitude > :tlLo AND startLongitude < :brLo AND startLatitude > :tlLa AND startLatitude < :brLa)")
+    @Query("SELECT t FROM Track t WHERE (startLongitude > :tlLo AND startLongitude < :brLo AND startLatitude < :tlLa AND startLatitude > :brLa)")
     List<Track> findAllIncludedInCords(
             @Param("tlLo") double topLeftLongitude,
             @Param("tlLa") double topLeftLatitude,
