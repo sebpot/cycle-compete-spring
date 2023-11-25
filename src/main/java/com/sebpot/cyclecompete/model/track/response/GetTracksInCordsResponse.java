@@ -1,6 +1,6 @@
 package com.sebpot.cyclecompete.model.track.response;
 
-import com.sebpot.cyclecompete.model.track.wrapper.GetTracksWrapper;
+import com.sebpot.cyclecompete.model.track.wrapper.GetTracksInCordsWrapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +12,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetTracksResponse {
-    private List<GetTracksWrapper> tracks;
+public class GetTracksInCordsResponse {
+    private List<GetTracksInCordsWrapper> tracks;
 }

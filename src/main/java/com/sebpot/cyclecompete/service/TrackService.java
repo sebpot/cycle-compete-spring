@@ -3,10 +3,7 @@ package com.sebpot.cyclecompete.service;
 import com.sebpot.cyclecompete.model.track.*;
 import com.sebpot.cyclecompete.model.track.request.CreateTrackRequest;
 import com.sebpot.cyclecompete.model.track.request.CreateTrackRunRequest;
-import com.sebpot.cyclecompete.model.track.response.GetTrackResponse;
-import com.sebpot.cyclecompete.model.track.response.GetTrackRunsOfTrackResponse;
-import com.sebpot.cyclecompete.model.track.response.GetTrackRunsOfUserResponse;
-import com.sebpot.cyclecompete.model.track.response.GetTracksResponse;
+import com.sebpot.cyclecompete.model.track.response.*;
 import com.sebpot.cyclecompete.model.track.wrapper.*;
 import com.sebpot.cyclecompete.repository.TrackPointRepository;
 import com.sebpot.cyclecompete.repository.TrackRepository;
@@ -17,11 +14,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TrackService {
+    private final int EARTH_RADIUS = 6371;
 
     private final TrackRepository trackRepository;
     private final TrackPointRepository trackPointRepository;
@@ -44,6 +45,7 @@ public class TrackService {
                 .description(request.getDescription().strip())
                 .startLongitude(request.getStartLongitude())
                 .startLatitude(request.getStartLatitude())
+                .averageTime(null)
                 .build();
         trackRepository.save(newTrack);
 
@@ -58,7 +60,7 @@ public class TrackService {
         }
     }
 
-    public GetTracksResponse getAllTracksIncludedInCords(
+    public GetTracksInCordsResponse getAllTracksIncludedInCords(
             double topLeftLongitude,
             double topLeftLatitude,
             double bottomRightLongitude,
@@ -66,10 +68,15 @@ public class TrackService {
     ) {
         var tracks = trackRepository.findAllIncludedInCords(topLeftLongitude, topLeftLatitude, bottomRightLongitude, bottomRightLatitude);
 
-        List<GetTracksWrapper> trackWrappers = new ArrayList<>();
+        List<GetTracksInCordsWrapper> trackWrappers = new ArrayList<>();
         for(Track track : tracks){
-            String avgTimeFormatted = String.format("%s:%s:%s", track.getAverageTime().getHour(), track.getAverageTime().getMinute(), track.getAverageTime().getSecond());
-            trackWrappers.add(GetTracksWrapper.builder()
+            var avgTime = track.getAverageTime();
+            String avgTimeFormatted = "";
+            if(avgTime == null)
+                avgTimeFormatted = "Unknown";
+            else
+                avgTimeFormatted = String.format("%s:%s:%s", avgTime.getHour(), avgTime.getMinute(), avgTime.getSecond());
+            trackWrappers.add(GetTracksInCordsWrapper.builder()
                     .id(track.getId())
                     .userFirstname(track.getCreator().getFirstname())
                     .userLastname(track.getCreator().getLastname())
@@ -80,7 +87,48 @@ public class TrackService {
                     .build());
         }
 
-        return GetTracksResponse.builder()
+        return GetTracksInCordsResponse.builder()
+                .tracks(trackWrappers)
+                .build();
+    }
+
+    public GetClosestTracksResponse getClosestTracks(
+            int n,
+            double longitude,
+            double latitude
+    ) {
+        var tracks = trackRepository.findAll();
+        Collections.sort(tracks, new Comparator<Track>() {
+            @Override
+            public int compare(Track t1, Track t2) {
+                double t1Distance = calculateDistance(latitude, longitude, t1.getStartLatitude(), t1.getStartLongitude());
+                double t2Distance = calculateDistance(latitude, longitude, t2.getStartLatitude(), t2.getStartLongitude());
+                return Double.compare(t1Distance, t2Distance);
+            }
+        });
+
+        var nTracks = tracks.stream().limit(n).toList();
+
+        List<GetClosestTracksWrapper> trackWrappers = new ArrayList<>();
+        for(Track track : nTracks){
+            var avgTime = track.getAverageTime();
+            String avgTimeFormatted = "";
+            if(avgTime == null)
+                avgTimeFormatted = "Unknown";
+            else
+                avgTimeFormatted = String.format("%s:%s:%s", avgTime.getHour(), avgTime.getMinute(), avgTime.getSecond());
+            trackWrappers.add(GetClosestTracksWrapper.builder()
+                    .id((track.getId()))
+                    .userFirstname(track.getCreator().getFirstname())
+                    .userLastname(track.getCreator().getLastname())
+                    .name(track.getName())
+                    .averageTime(avgTimeFormatted)
+                    .distanceTo(calculateDistance(latitude, longitude, track.getStartLatitude(), track.getStartLongitude()))
+                    .build()
+            );
+        }
+
+        return GetClosestTracksResponse.builder()
                 .tracks(trackWrappers)
                 .build();
     }
@@ -102,7 +150,13 @@ public class TrackService {
                     .build());
         }
 
-        String avgTimeFormatted = String.format("%s:%s:%s", track.getAverageTime().getHour(), track.getAverageTime().getMinute(), track.getAverageTime().getSecond());
+        var avgTime = track.getAverageTime();
+        String avgTimeFormatted = "";
+        if(avgTime == null)
+            avgTimeFormatted = "Unknown";
+        else
+            avgTimeFormatted = String.format("%s:%s:%s", avgTime.getHour(), avgTime.getMinute(), avgTime.getSecond());
+
         return GetTrackResponse.builder()
                 .id(track.getId())
                 .userFirstname(track.getCreator().getFirstname())
@@ -222,5 +276,17 @@ public class TrackService {
         return GetTrackRunsOfUserResponse.builder()
                 .trackRuns(trackRunWrappers)
                 .build();
+    }
+
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        double lat1Rad = Math.toRadians(lat1);
+        double lat2Rad = Math.toRadians(lat2);
+        double lon1Rad = Math.toRadians(lon1);
+        double lon2Rad = Math.toRadians(lon2);
+
+        double x = (lon2Rad - lon1Rad) * Math.cos((lat1Rad + lat2Rad) / 2);
+        double y = (lat2Rad - lat1Rad);
+
+        return Math.sqrt(x * x + y * y) * EARTH_RADIUS;
     }
 }

@@ -1,8 +1,9 @@
 package com.sebpot.cyclecompete.controller;
 
 import com.sebpot.cyclecompete.model.track.request.CreateTrackRequest;
+import com.sebpot.cyclecompete.model.track.response.GetClosestTracksResponse;
 import com.sebpot.cyclecompete.model.track.response.GetTrackResponse;
-import com.sebpot.cyclecompete.model.track.response.GetTracksResponse;
+import com.sebpot.cyclecompete.model.track.response.GetTracksInCordsResponse;
 import com.sebpot.cyclecompete.service.TrackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class TrackController {
     }
 
     @GetMapping("")
-    public ResponseEntity<GetTracksResponse> getTracksIncludedInCords(
+    public ResponseEntity<GetTracksInCordsResponse> getTracksIncludedInCords(
             @RequestParam("tlLng") double topLeftLongitude,
             @RequestParam("tlLat") double topLeftLatitude,
             @RequestParam("brLng") double bottomRightLongitude,
@@ -38,6 +39,15 @@ public class TrackController {
                 bottomRightLongitude,
                 bottomRightLatitude
         ));
+    }
+
+    @GetMapping("/closest")
+    public ResponseEntity<GetClosestTracksResponse> getNumberOfClosestTracks(
+            @RequestParam("n") int n,
+            @RequestParam("lon") double longitude,
+            @RequestParam("lat") double latitude
+    ) {
+        return ResponseEntity.ok(trackService.getClosestTracks(n, longitude, latitude));
     }
 
     @GetMapping("/{id}")
