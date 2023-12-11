@@ -14,6 +14,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TrackRunsOfUserWrapper {
+    private Integer id;
     private String trackName;
     private LocalDateTime endDate;
     private String duration;

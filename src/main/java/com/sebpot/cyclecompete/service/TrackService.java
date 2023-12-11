@@ -266,6 +266,7 @@ public class TrackService {
         for(TrackRun trackRun : trackRuns){
             String minDurationFormatted = String.format("%s:%s:%s", trackRun.getDuration().getHour(), trackRun.getDuration().getMinute(), trackRun.getDuration().getSecond());
             trackRunWrappers.add(TrackRunsOfUserWrapper.builder()
+                    .id(trackRun.getId())
                     .trackName(trackRun.getTrack().getName())
                     .endDate(trackRun.getEndDate())
                     .duration(minDurationFormatted)

@@ -14,12 +14,13 @@ import java.util.List;
 @Repository
 public interface TrackRunRepository extends JpaRepository<TrackRun, Integer> {
 
-    @Query("SELECT new com.sebpot.cyclecompete.model.track.wrapper.TrackRunQueryWrapper(tR.user, MIN(tR.duration) AS minDuration) FROM TrackRun tR WHERE track = :id_of_track GROUP BY user ORDER BY minDuration ASC")
+    @Query("SELECT new com.sebpot.cyclecompete.model.track.wrapper.TrackRunQueryWrapper(tR.user, MIN(tR.duration) AS minDuration) " +
+            "FROM TrackRun tR WHERE track = :id_of_track GROUP BY user ORDER BY minDuration ASC")
     List<TrackRunQueryWrapper> findAllBestByTrack(@Param("id_of_track") Track track);
 
     @Query("SELECT tR FROM TrackRun tR WHERE user = :id_of_user ORDER BY endDate DESC")
     List<TrackRun> findAllByUser(@Param("id_of_user") User user);
 
-    @Query("SELECT tR FROM TrackRun tR WHERE track = :id_od_track")
-    List<TrackRun> findAllByTrack(@Param("id_od_track") Track track);
+    @Query("SELECT tR FROM TrackRun tR WHERE track = :id_of_track")
+    List<TrackRun> findAllByTrack(@Param("id_of_track") Track track);
 }
