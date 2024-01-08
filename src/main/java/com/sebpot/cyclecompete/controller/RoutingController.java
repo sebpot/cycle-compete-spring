@@ -4,6 +4,7 @@ import com.sebpot.cyclecompete.service.ApiService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -15,6 +16,9 @@ public class RoutingController {
 
     private final ApiService apiService;
 
+    @Value("${routing.API.token}")
+    private String routesAPIToken;
+
     @GetMapping("/mapbox/cycling/{pathString}")
     public Object RedirectToMapBox(
             HttpServletRequest request,
@@ -24,7 +28,11 @@ public class RoutingController {
             @RequestParam("steps") String steps) throws IOException {
         String uri = request.getRequestURI();
         String requestPath = uri.substring(15);
-        String redirectUrl = "https://api.mapbox.com/directions/v5" + requestPath + "?overview=" + overview + "&alternatives=" + alternatives + "&steps=" + steps + "&access_token=pk.eyJ1IjoiYmFydGxvbWllanMiLCJhIjoiY2xyMTdyNzQ2MHE0ZzJsbnZobTUxYjlxdCJ9.SQoDGZGtLuFcUGZLvTLUVQ";
+        String redirectUrl = "https://api.mapbox.com/directions/v5" + requestPath
+            + "?overview=" + overview
+            + "&alternatives=" + alternatives
+            + "&steps=" + steps
+            + "&access_token=" + routesAPIToken;
         return apiService.redirectRequest(redirectUrl);
     }
 }
