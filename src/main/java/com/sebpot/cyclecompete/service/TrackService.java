@@ -160,6 +160,7 @@ public class TrackService {
 
         return GetTrackResponse.builder()
                 .id(track.getId())
+                .creatorId(track.getCreator().getId())
                 .userFirstname(track.getCreator().getFirstname())
                 .userLastname(track.getCreator().getLastname())
                 .name(track.getName())
@@ -184,6 +185,11 @@ public class TrackService {
         var trackPoints = trackPointRepository.findAllByTrackId(id);
         for(TrackPoint trackPoint : trackPoints){
             trackPointRepository.delete(trackPoint);
+        }
+
+        var trackRuns = trackRunRepository.findAllByTrack(track);
+        for(TrackRun trackRun : trackRuns){
+            trackRunRepository.delete(trackRun);
         }
 
         trackRepository.delete(track);

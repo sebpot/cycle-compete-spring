@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class GetTrackResponse {
     private Integer id;
+    private Integer creatorId;
     private String userFirstname;
     private String userLastname;
     private String name;

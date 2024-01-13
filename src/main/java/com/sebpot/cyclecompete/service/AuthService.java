@@ -41,10 +41,12 @@ public class AuthService {
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
+                .id(user.getId())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .email(user.getEmail())
                 .token(jwtToken)
+                .role(user.getRole().toString())
                 .build();
     }
 
@@ -78,10 +80,12 @@ public class AuthService {
                 .orElseThrow(() -> new Exception("An account with given email address does not exist"));
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
+                .id(user.getId())
                 .firstname(user.getFirstname())
                 .lastname(user.getLastname())
                 .email(user.getEmail())
                 .token(jwtToken)
+                .role(user.getRole().toString())
                 .build();
     }
 }
