@@ -5,6 +5,7 @@ import com.sebpot.cyclecompete.model.track.request.CreateTrackRequest;
 import com.sebpot.cyclecompete.model.track.request.CreateTrackRunRequest;
 import com.sebpot.cyclecompete.model.track.response.*;
 import com.sebpot.cyclecompete.model.track.wrapper.*;
+import com.sebpot.cyclecompete.model.user.UserRole;
 import com.sebpot.cyclecompete.repository.TrackPointRepository;
 import com.sebpot.cyclecompete.repository.TrackRepository;
 import com.sebpot.cyclecompete.repository.TrackRunRepository;
@@ -176,7 +177,8 @@ public class TrackService {
         String email = jwtService.extractUsername(token);
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Current user does not exist."));
-        if(user.getId() != track.getCreator().getId())
+
+        if(user.getId() != track.getCreator().getId() && user.getRole() != UserRole.ADMIN)
             throw new Exception("Unable to delete given track, you are not the creator.");
 
         var trackPoints = trackPointRepository.findAllByTrackId(id);
