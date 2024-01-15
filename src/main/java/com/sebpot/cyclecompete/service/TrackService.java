@@ -14,10 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +44,7 @@ public class TrackService {
                 .startLongitude(request.getStartLongitude())
                 .startLatitude(request.getStartLatitude())
                 .averageTime(null)
+                .privacy(request.getPrivacy())
                 .build();
         trackRepository.save(newTrack);
 
@@ -65,26 +63,38 @@ public class TrackService {
             double topLeftLongitude,
             double topLeftLatitude,
             double bottomRightLongitude,
-            double bottomRightLatitude
+            double bottomRightLatitude,
+            String token
     ) {
+        String email = jwtService.extractUsername(token);
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Current user does not exist."));
+
         var tracks = trackRepository.findAllIncludedInCords(topLeftLongitude, topLeftLatitude, bottomRightLongitude, bottomRightLatitude);
 
         List<GetTracksInCordsWrapper> trackWrappers = new ArrayList<>();
-        for(Track track : tracks){
+        for(Track track : tracks) {
+
+            if(track.getCreator().getId() != user.getId() && track.getPrivacy().equals("private")) continue;
+
             var avgTime = track.getAverageTime();
             String avgTimeFormatted = "";
+
             if(avgTime == null)
                 avgTimeFormatted = "Unknown";
             else
                 avgTimeFormatted = String.format("%s:%s:%s", avgTime.getHour(), avgTime.getMinute(), avgTime.getSecond());
+
             trackWrappers.add(GetTracksInCordsWrapper.builder()
                     .id(track.getId())
+                    .creatorId(track.getCreator().getId())
                     .userFirstname(track.getCreator().getFirstname())
                     .userLastname(track.getCreator().getLastname())
                     .name(track.getName())
                     .startLatitude(track.getStartLatitude())
                     .startLongitude(track.getStartLongitude())
                     .averageTime(avgTimeFormatted)
+                    .privacy(track.getPrivacy())
                     .build());
         }
 
@@ -96,8 +106,13 @@ public class TrackService {
     public GetClosestTracksResponse getClosestTracks(
             int n,
             double longitude,
-            double latitude
+            double latitude,
+            String token
     ) {
+        String email = jwtService.extractUsername(token);
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Current user does not exist."));
+
         var tracks = trackRepository.findAll();
         Collections.sort(tracks, new Comparator<Track>() {
             @Override
@@ -112,18 +127,25 @@ public class TrackService {
 
         List<GetClosestTracksWrapper> trackWrappers = new ArrayList<>();
         for(Track track : nTracks){
+
+            if(track.getCreator().getId() != user.getId() && track.getPrivacy().equals("private")) continue;
+
             var avgTime = track.getAverageTime();
             String avgTimeFormatted = "";
+
             if(avgTime == null)
                 avgTimeFormatted = "Unknown";
             else
                 avgTimeFormatted = String.format("%s:%s:%s", avgTime.getHour(), avgTime.getMinute(), avgTime.getSecond());
+
             trackWrappers.add(GetClosestTracksWrapper.builder()
                     .id((track.getId()))
+                    .creatorId(track.getCreator().getId())
                     .userFirstname(track.getCreator().getFirstname())
                     .userLastname(track.getCreator().getLastname())
                     .name(track.getName())
                     .averageTime(avgTimeFormatted)
+                    .privacy(track.getPrivacy())
                     .distanceTo(calculateDistance(latitude, longitude, track.getStartLatitude(), track.getStartLongitude()))
                     .build()
             );
@@ -167,6 +189,7 @@ public class TrackService {
                 .startLatitude(track.getStartLatitude())
                 .startLongitude(track.getStartLongitude())
                 .averageTime(avgTimeFormatted)
+                .privacy(track.getPrivacy())
                 .trackPoints(trackPointWrappers)
                 .build();
     }

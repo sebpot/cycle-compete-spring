@@ -31,13 +31,16 @@ public class TrackController {
             @RequestParam("tlLng") double topLeftLongitude,
             @RequestParam("tlLat") double topLeftLatitude,
             @RequestParam("brLng") double bottomRightLongitude,
-            @RequestParam("brLat") double bottomRightLatitude
+            @RequestParam("brLat") double bottomRightLatitude,
+            @RequestHeader("Authorization") String authHeader
     ) {
+        String token = authHeader.substring(7);
         return ResponseEntity.ok(trackService.getAllTracksIncludedInCords(
                 topLeftLongitude,
                 topLeftLatitude,
                 bottomRightLongitude,
-                bottomRightLatitude
+                bottomRightLatitude,
+                token
         ));
     }
 
@@ -45,9 +48,11 @@ public class TrackController {
     public ResponseEntity<GetClosestTracksResponse> getNumberOfClosestTracks(
             @RequestParam("n") int n,
             @RequestParam("lon") double longitude,
-            @RequestParam("lat") double latitude
+            @RequestParam("lat") double latitude,
+            @RequestHeader("Authorization") String authHeader
     ) {
-        return ResponseEntity.ok(trackService.getClosestTracks(n, longitude, latitude));
+        String token = authHeader.substring(7);
+        return ResponseEntity.ok(trackService.getClosestTracks(n, longitude, latitude, token));
     }
 
     @GetMapping("/{id}")

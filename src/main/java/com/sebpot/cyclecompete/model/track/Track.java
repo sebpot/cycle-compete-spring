@@ -36,4 +36,6 @@ public class Track {
     private double startLatitude;
 
     private LocalTime averageTime;
+
+    private String privacy;
 }

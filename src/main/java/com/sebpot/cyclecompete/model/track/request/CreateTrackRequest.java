@@ -17,5 +17,6 @@ public class CreateTrackRequest {
     private String description;
     private double startLongitude;
     private double startLatitude;
+    private String privacy;
     private List<TrackPointWrapper> trackPoints;
 }
