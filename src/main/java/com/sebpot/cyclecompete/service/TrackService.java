@@ -261,7 +261,9 @@ public class TrackService {
         int avgHours = avgMinutes / 60;
         avgMinutes = avgMinutes % 60;
         LocalTime avgDuration = LocalTime.of(avgHours, avgMinutes, avgSeconds);
+
         track.setAverageTime(avgDuration);
+        trackRepository.save(track);
     }
 
     public GetTrackRunsOfTrackResponse getAllTrackRunsOfTrack(int id) {
